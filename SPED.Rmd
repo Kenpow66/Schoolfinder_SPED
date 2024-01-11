@@ -43,4 +43,58 @@ library(tidyverse)
 SPED <- read.csv('SPED_R.csv', stringsAsFactors = FALSE, header = TRUE) %>%
   mutate(campus_number = sprintf("%03d", campus_number))
 
+names(SPED)[1] <- "entity_id"
+names(SPED)[2] <- "Behavior Support Class"
+names(SPED)[3] <- "Early Childhood Special Education, formerly PALS"
+names(SPED)[4] <- "Ages 3-5_Explore"
+names(SPED)[5] <- "Preparing Students for Independence"
+names(SPED)[6] <- "Structured Learning Class / Transistion Readiness with Essential Skills_Alternative"
+names(SPED)[7] <- "Structured Learning Class / Transistion Readiness with Essential Skills_Standard Trek"
+names(SPED)[8] <- "Skills for Learning and Living"
+names(SPED)[9] <- "Services for Students with Visual Impairments"
+names(SPED)[10] <- "Related Services_Occupational Therapy"
+names(SPED)[11] <- "Related Services_Physical Therapy"
+names(SPED)[12] <- "Related Services_Musical Therapy"
+names(SPED)[13] <- "Related Services_Assistive Technology"
+names(SPED)[14] <- "Related Services_Adapted Physical Education"
+names(SPED)[15] <- "Related Services_Counseling"
+names(SPED)[16] <- "Related Services_Transportation"
+names(SPED)[17] <- "Transistion Programs_18-22_Campus-Based"
+names(SPED)[18] <- "Transistion Programs_18-22_Community-Based"
+names(SPED)[19] <- "Speech Therapy_3-21_Direct"
+names(SPED)[20] <- "Speech Therapy_3-21_Indirect"
+names(SPED)[21] <- "Speech Therapy_3-21_Collaborative/Inclusive"
+names(SPED)[22] <- "Standalone Campus Program_Community Services"
+names(SPED)[23] <- "Standalone Campus Program_Harper Alternative"
+names(SPED)[24] <- "Standalone Campus Program_Region 4 RDSPD"
+names(SPED)[25] <- "Standalone Campus Program_SOAR_Student Oppurtunities for Alternative Redirection"
+
+SPED <- SPED %>% filter(entity_id!= " NA")
+#Pivot longer but keeping the campus ID
+SPED_long <- pivot_longer(SPED, 
+                  cols = -entity_id, names_to = "value", values_to = "Offered" )
+
+#Create structure to include all campuses regardless of programmed offered
+all_campuses <- SPED_long %>% distinct(entity_id)
+
+
+
+#Filter by programs offered then join with all_campuses to create final list
+SPED_long <- filter(SPED_long, Offered == 1)
+SPED_final <- left_join(all_campuses, SPED_long, by = "entity_id")
+
+
+#Clean CampusID add type column, fix NA responses, rename columns, and rearrange
+SPED_final <- SPED_final %>% 
+    mutate(type = "prog_sped",
+           value = ifelse(is.na(value), "No SPED offered", value)) %>% 
+    select(entity_id, type, value) %>% 
+    arrange(entity_id)
+
+
+
+write.csv(SPED_final, "R:\\Specialists Transfer\\Ken\\GitHub\\Schoolfinder_SPED\\SPED_final.csv", row.names=FALSE)
+
+
+
 ```
