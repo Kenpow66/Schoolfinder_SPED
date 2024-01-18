@@ -5,32 +5,6 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-
-
 
 ```{r}
 
@@ -40,34 +14,20 @@ library(tidyverse)
 
 ##Load csv and create a dataframe and add leading zeros to campus number
 
-SPED <- read.csv('SPED_R.csv', stringsAsFactors = FALSE, header = TRUE) %>%
-  mutate(campus_number = sprintf("%03d", campus_number))
+SPED <- read.csv('SPED_r_01182024.csv', stringsAsFactors = FALSE, header = TRUE) %>%
+  mutate(campus_number = sprintf("%03d", campus_number)) %>% 
+  select(-9,-10)
 
 names(SPED)[1] <- "entity_id"
 names(SPED)[2] <- "Behavior Support Class"
-names(SPED)[3] <- "Early Childhood Special Education, formerly PALS"
-names(SPED)[4] <- "Ages 3-5_Explore"
-names(SPED)[5] <- "Preparing Students for Independence"
-names(SPED)[6] <- "Structured Learning Class / Transistion Readiness with Essential Skills_Alternative"
-names(SPED)[7] <- "Structured Learning Class / Transistion Readiness with Essential Skills_Standard Trek"
-names(SPED)[8] <- "Skills for Learning and Living"
-names(SPED)[9] <- "Services for Students with Visual Impairments"
-names(SPED)[10] <- "Related Services_Occupational Therapy"
-names(SPED)[11] <- "Related Services_Physical Therapy"
-names(SPED)[12] <- "Related Services_Musical Therapy"
-names(SPED)[13] <- "Related Services_Assistive Technology"
-names(SPED)[14] <- "Related Services_Adapted Physical Education"
-names(SPED)[15] <- "Related Services_Counseling"
-names(SPED)[16] <- "Related Services_Transportation"
-names(SPED)[17] <- "Transistion Programs_18-22_Campus-Based"
-names(SPED)[18] <- "Transistion Programs_18-22_Community-Based"
-names(SPED)[19] <- "Speech Therapy_3-21_Direct"
-names(SPED)[20] <- "Speech Therapy_3-21_Indirect"
-names(SPED)[21] <- "Speech Therapy_3-21_Collaborative/Inclusive"
-names(SPED)[22] <- "Standalone Campus Program_Community Services"
-names(SPED)[23] <- "Standalone Campus Program_Harper Alternative"
-names(SPED)[24] <- "Standalone Campus Program_Region 4 RDSPD"
-names(SPED)[25] <- "Standalone Campus Program_SOAR_Student Oppurtunities for Alternative Redirection"
+names(SPED)[3] <- "Early Childhood Special Education (ECSE)"
+names(SPED)[4] <- "Explore Program: Early Childhood Inclusion"
+names(SPED)[5] <- "Preparing Students for Independence (PSI)"
+names(SPED)[6] <- "Structured Learning Class: Alternative Curriculum"
+names(SPED)[7] <- "Structured Learning Class: Transistion Readiness with Essential Knowledge (TREK)"
+names(SPED)[8] <- "Skills for Learning and Living (SLL)"
+names(SPED)[9] <- "Speech Therapy (Ages 3-21) Direct"
+names(SPED)[10] <- "Standalone Campus Program: Region 4 Regional Day School Program for the Deaf (RDSPD)"
 
 SPED <- SPED %>% filter(entity_id!= " NA")
 #Pivot longer but keeping the campus ID
@@ -87,13 +47,13 @@ SPED_final <- left_join(all_campuses, SPED_long, by = "entity_id")
 #Clean CampusID add type column, fix NA responses, rename columns, and rearrange
 SPED_final <- SPED_final %>% 
     mutate(type = "prog_sped",
-           value = ifelse(is.na(value), "No SPED offered", value)) %>% 
+           value = ifelse(is.na(value), "Standard Services", value)) %>% 
     select(entity_id, type, value) %>% 
     arrange(entity_id)
 
+SPED_final[, "id"] <-""
 
-
-write.csv(SPED_final, "R:\\Specialists Transfer\\Ken\\GitHub\\Schoolfinder_SPED\\SPED_final.csv", row.names=FALSE)
+write.csv(SPED_final, "R:\\Specialists Transfer\\Ken\\GitHub\\Schoolfinder_SPED\\SPED_id_final.csv", row.names=FALSE)
 
 
 
